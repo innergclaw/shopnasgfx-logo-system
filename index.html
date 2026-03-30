@@ -139,7 +139,12 @@
     .footer a { color: var(--accent); text-decoration: none; }
 
     @media (max-width: 600px) {
-      .top-row .children-grid { grid-template-columns: repeat(2, 1fr); }
+      .top-row .children-grid { grid-template-columns: 1fr; }
+      .diagram-box { padding: 24px 16px; }
+      .tree-level { padding-left: 20px; margin-left: 16px; }
+      .variations { grid-template-columns: repeat(2, 1fr); }
+      .formats-row { gap: 6px; }
+      .fmt-tag { padding: 8px 12px; flex: 1; min-width: calc(33% - 8px); }
     }
   </style>
 </head>
