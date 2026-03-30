@@ -10,195 +10,113 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
       --bg: #F5F3EE;
+      --white: #fff;
       --text: #1a1a1a;
       --muted: #888;
-      --line: #CCC;
-      --folder-color: #D4A843;
-      --file-color: #A8A89C;
+      --line: #C8C8C8;
+      --folder: #D4A843;
+      --folder-open: #C49A35;
+      --file: #A8A89C;
       --accent: #6C63FF;
-      --white: #fff;
     }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-    .page { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+    .page { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
 
-    /* TOP BAR */
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
     .brand { font-size: 14px; font-weight: 800; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
     .brand span { color: var(--accent); }
 
-    /* HERO */
     .hero { text-align: center; margin-bottom: 48px; }
     .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 5vw, 42px); margin-bottom: 10px; line-height: 1.2; }
     .hero p { color: var(--muted); font-size: 16px; max-width: 520px; margin: 0 auto; }
 
-    /* DIAGRAM CONTAINER */
+    /* DIAGRAM */
     .diagram-box {
       background: var(--white);
       border: 1px solid #E0DDD6;
       border-radius: 16px;
-      padding: 40px 32px;
+      padding: 48px 32px;
       margin-bottom: 48px;
-      overflow: visible;
     }
 
-    /* FOLDER ICON */
-    .folder { display: inline-flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none; }
-    .folder-shape { position: relative; width: 52px; height: 42px; }
-    .folder-tab { width: 22px; height: 9px; background: var(--folder-color); border-radius: 4px 4px 0 0; position: absolute; top: 0; left: 0; }
-    .folder-body { width: 52px; height: 34px; background: var(--folder-color); border-radius: 0 4px 4px 4px; position: absolute; bottom: 0; box-shadow: 2px 3px 0 rgba(0,0,0,0.12); }
-    .folder-label { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 600; margin-top: 6px; text-align: center; white-space: nowrap; }
-    .folder:hover .folder-body { filter: brightness(1.08); }
-    .folder.open > .folder-body { background: #C49A35; }
+    /* FOLDER NODE */
+    .folder-node {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 6px 0;
+      user-select: none;
+    }
+    .folder-node:hover .fbody { filter: brightness(1.08); }
+    .folder-node.open .fbody { background: var(--folder-open); }
 
-    /* FILE ICON */
-    .file { display: inline-flex; flex-direction: column; align-items: center; }
-    .file-shape { width: 38px; height: 44px; background: var(--file-color); border-radius: 0 3px 3px 3px; position: relative; box-shadow: 2px 3px 0 rgba(0,0,0,0.08); }
-    .file-shape::before { content: ''; position: absolute; top: 0; right: 0; width: 13px; height: 13px; background: linear-gradient(135deg, var(--white) 50%, var(--file-color) 50%); }
-    .file-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 5px; }
+    .ficon { position: relative; width: 44px; height: 36px; flex-shrink: 0; }
+    .ftab { width: 18px; height: 7px; background: var(--folder); border-radius: 3px 3px 0 0; position: absolute; top: 0; left: 0; }
+    .fbody { width: 44px; height: 29px; background: var(--folder); border-radius: 0 3px 3px 3px; position: absolute; bottom: 0; box-shadow: 1px 2px 0 rgba(0,0,0,0.12); }
+    .folder-node.open .ftab { background: var(--folder-open); }
+
+    .fname { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
+
+    /* ARROW */
+    .arrow { display: inline-block; width: 16px; height: 16px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg); margin-left: 4px; transition: transform 0.3s; flex-shrink: 0; }
+    .folder-node.open .arrow { transform: rotate(-135deg); }
+
+    /* FILE NODE */
+    .file-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 0;
+    }
+    .ficon-file { width: 32px; height: 38px; background: var(--file); border-radius: 0 2px 2px 2px; position: relative; flex-shrink: 0; box-shadow: 1px 2px 0 rgba(0,0,0,0.08); }
+    .ficon-file::before { content: ''; position: absolute; top: 0; right: 0; width: 11px; height: 11px; background: linear-gradient(135deg, var(--white) 50%, var(--file) 50%); }
+    .fext { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--muted); }
 
     /* TREE STRUCTURE */
-    .tree-root { display: flex; flex-direction: column; align-items: center; }
-    .tree-children { display: flex; justify-content: center; gap: 32px; margin-top: 20px; position: relative; }
-    .tree-branch { display: flex; flex-direction: column; align-items: center; position: relative; }
-
-    /* VERTICAL CONNECTOR from parent */
-    .tree-children::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      width: 0;
-      height: 20px;
-      border-left: 2px solid var(--line);
-    }
-    /* HORIZONTAL connector across children */
-    .tree-children::after {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: calc(50% / var(--total-children, 5) * (var(--total-children, 5) - 1) * -1);
-      /* We'll use a different approach */
-      display: none;
-    }
-
-    /* Child vertical drop */
-    .tree-branch::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      width: 0;
-      height: 20px;
-      border-left: 2px solid var(--line);
-    }
-
-    /* ANIMATED CHILDREN */
-    .children-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .tree { padding-left: 0; }
+    .tree-level { padding-left: 28px; border-left: 2px solid var(--line); margin-left: 21px; }
+    .tree-children {
       overflow: hidden;
       max-height: 0;
       opacity: 0;
-      transition: max-height 0.5s ease, opacity 0.4s ease, margin 0.3s ease;
-      margin-top: 0;
+      transition: max-height 0.5s ease, opacity 0.4s ease;
     }
-    .children-wrap.open {
-      max-height: 800px;
+    .tree-children.open {
+      max-height: 2000px;
       opacity: 1;
+    }
+
+    /* TOP ROW: 5 folders side by side */
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .top-row .children-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px 16px;
+      padding-top: 16px;
+      border-top: 2px solid var(--line);
       margin-top: 8px;
+      width: 100%;
     }
 
-    .children-row {
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      position: relative;
-      padding-top: 28px;
-    }
-    /* Connector line from parent down */
-    .children-row::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 28px;
-      background: var(--line);
+    /* MASTER EXPANDS LEFT-ALIGNED */
+    .master-tree {
+      padding-left: 28px;
+      border-left: 2px solid var(--line);
+      margin-left: 21px;
     }
 
-    /* Horizontal line across row */
-    .children-row::after {
-      content: '';
-      position: absolute;
-      top: 28px;
-      left: 28px;
-      right: 28px;
-      height: 2px;
-      background: var(--line);
-    }
-
-    /* Vertical drops to each child */
-    .children-row > .tree-branch::before {
-      content: '';
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 28px;
-      background: var(--line);
-    }
-
-    .children-row.tight { gap: 20px; }
-    .children-row.tight::after { left: 20px; right: 20px; }
-
-    /* FILE ROW (no folders, just files) */
-    .file-row {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      position: relative;
-      padding-top: 24px;
-    }
-    .file-row::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 24px;
-      background: var(--line);
-    }
-    .file-row::after {
-      content: '';
-      position: absolute;
-      top: 24px;
-      left: 16px;
-      right: 16px;
-      height: 2px;
-      background: var(--line);
-    }
-    .file-row > .file::before {
-      content: '';
-      position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 24px;
-      background: var(--line);
-    }
-    .file-row > .file { position: relative; }
-
-    /* INFO SECTIONS */
+    /* SECTIONS */
     .info-section { margin-bottom: 40px; }
     .info-section h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
     .info-section p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
 
-    .variations { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 40px; }
+    .variations { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 40px; }
     .var-card { background: var(--white); border: 1px solid #E0DDD6; border-radius: 12px; padding: 16px; text-align: center; }
     .var-card .emoji { font-size: 28px; margin-bottom: 8px; }
     .var-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
@@ -209,7 +127,6 @@
     .fmt-tag .ext { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); }
     .fmt-tag .desc { font-size: 11px; color: var(--muted); }
 
-    /* CTA */
     .cta { background: var(--white); border: 1px solid #E0DDD6; border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 40px; }
     .cta h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 8px; }
     .cta p { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
@@ -220,6 +137,10 @@
 
     .footer { text-align: center; color: var(--muted); font-size: 12px; border-top: 1px solid #E0DDD6; padding-top: 24px; }
     .footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .top-row .children-grid { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -235,77 +156,81 @@
   </div>
 
   <div class="diagram-box">
-    <div class="tree-root">
 
-      <!-- ROOT FOLDER -->
-      <div class="folder" data-folder="root" onclick="toggleFolder('root')">
-        <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-        <div class="folder-label">Logo System</div>
+    <!-- ROOT -->
+    <div class="top-row">
+      <div class="folder-node open" onclick="toggle(this)">
+        <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+        <span class="fname">Logo System</span>
+        <span class="arrow"></span>
       </div>
 
-      <!-- ROOT CHILDREN -->
-      <div class="children-wrap open" id="root">
-        <div class="children-row">
-          <!-- Master Logo (expandable) -->
-          <div class="tree-branch">
-            <div class="folder" data-folder="master" onclick="toggleFolder('master')">
-              <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-              <div class="folder-label">Master Logo</div>
+      <div class="tree-children open">
+        <div class="children-grid">
+
+          <!-- 1. MASTER LOGO -->
+          <div class="tree">
+            <div class="folder-node" onclick="toggle(this)">
+              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+              <span class="fname">Master Logo</span>
+              <span class="arrow"></span>
             </div>
-            <div class="children-wrap" id="master">
-              <div class="children-row tight">
-                <!-- Digital (expandable) -->
-                <div class="tree-branch">
-                  <div class="folder" data-folder="digital" onclick="toggleFolder('digital')">
-                    <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-                    <div class="folder-label">Digital</div>
+            <div class="tree-children">
+              <div class="tree-level">
+                <!-- Digital -->
+                <div class="tree">
+                  <div class="folder-node" onclick="toggle(this)">
+                    <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+                    <span class="fname">Digital</span>
+                    <span class="arrow"></span>
                   </div>
-                  <div class="children-wrap" id="digital">
-                    <div class="children-row tight">
-                      <!-- Full Color (expandable) -->
-                      <div class="tree-branch">
-                        <div class="folder" data-folder="fullcolor" onclick="toggleFolder('fullcolor')">
-                          <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-                          <div class="folder-label">Full Color</div>
+                  <div class="tree-children">
+                    <div class="tree-level">
+                      <!-- Full Color -->
+                      <div class="tree">
+                        <div class="folder-node" onclick="toggle(this)">
+                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+                          <span class="fname">Full Color</span>
+                          <span class="arrow"></span>
                         </div>
-                        <div class="children-wrap" id="fullcolor">
-                          <div class="file-row">
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.ai</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.eps</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.svg</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.pdf</div></div>
-                          </div>
-                          <div class="file-row" style="margin-top: 12px;">
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.jpg</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.png</div></div>
+                        <div class="tree-children">
+                          <div class="tree-level">
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
                           </div>
                         </div>
                       </div>
                       <!-- Black -->
-                      <div class="tree-branch">
-                        <div class="folder" data-folder="black" onclick="toggleFolder('black')">
-                          <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-                          <div class="folder-label">Black</div>
+                      <div class="tree">
+                        <div class="folder-node" onclick="toggle(this)">
+                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+                          <span class="fname">Black</span>
+                          <span class="arrow"></span>
                         </div>
-                        <div class="children-wrap" id="black">
-                          <div class="file-row tight">
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.svg</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.png</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.pdf</div></div>
+                        <div class="tree-children">
+                          <div class="tree-level">
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
                           </div>
                         </div>
                       </div>
                       <!-- White -->
-                      <div class="tree-branch">
-                        <div class="folder" data-folder="white" onclick="toggleFolder('white')">
-                          <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-                          <div class="folder-label">White</div>
+                      <div class="tree">
+                        <div class="folder-node" onclick="toggle(this)">
+                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+                          <span class="fname">White</span>
+                          <span class="arrow"></span>
                         </div>
-                        <div class="children-wrap" id="white">
-                          <div class="file-row tight">
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.svg</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.png</div></div>
-                            <div class="file"><div class="file-shape"></div><div class="file-label">.pdf</div></div>
+                        <div class="tree-children">
+                          <div class="tree-level">
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
                           </div>
                         </div>
                       </div>
@@ -313,78 +238,104 @@
                   </div>
                 </div>
                 <!-- Print -->
-                <div class="tree-branch">
-                  <div class="folder" data-folder="print" onclick="toggleFolder('print')">
-                    <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-                    <div class="folder-label">Print</div>
+                <div class="tree">
+                  <div class="folder-node" onclick="toggle(this)">
+                    <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+                    <span class="fname">Print</span>
+                    <span class="arrow"></span>
                   </div>
-                  <div class="children-wrap" id="print">
-                    <div class="file-row tight">
-                      <div class="file"><div class="file-shape"></div><div class="file-label">.ai</div></div>
-                      <div class="file"><div class="file-shape"></div><div class="file-label">.eps</div></div>
-                      <div class="file"><div class="file-shape"></div><div class="file-label">.pdf</div></div>
+                  <div class="tree-children">
+                    <div class="tree-level">
+                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Secondary Logo -->
-          <div class="tree-branch">
-            <div class="folder" data-folder="secondary" onclick="toggleFolder('secondary')">
-              <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-              <div class="folder-label">Secondary Logo</div>
+
+          <!-- 2. SECONDARY LOGO -->
+          <div class="tree">
+            <div class="folder-node" onclick="toggle(this)">
+              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+              <span class="fname">Secondary Logo</span>
+              <span class="arrow"></span>
             </div>
-            <div class="children-wrap" id="secondary">
-              <div class="file-row tight">
-                <div class="file"><div class="file-shape"></div><div class="file-label">.ai .eps .svg</div></div>
-                <div class="file"><div class="file-shape"></div><div class="file-label">.pdf .png .jpg</div></div>
+            <div class="tree-children">
+              <div class="tree-level">
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
               </div>
             </div>
           </div>
-          <!-- Wordmark -->
-          <div class="tree-branch">
-            <div class="folder" data-folder="wordmark" onclick="toggleFolder('wordmark')">
-              <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-              <div class="folder-label">Wordmark</div>
+
+          <!-- 3. WORDMARK -->
+          <div class="tree">
+            <div class="folder-node" onclick="toggle(this)">
+              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+              <span class="fname">Wordmark</span>
+              <span class="arrow"></span>
             </div>
-            <div class="children-wrap" id="wordmark">
-              <div class="file-row tight">
-                <div class="file"><div class="file-shape"></div><div class="file-label">.ai .eps .svg</div></div>
-                <div class="file"><div class="file-shape"></div><div class="file-label">.pdf .png .jpg</div></div>
+            <div class="tree-children">
+              <div class="tree-level">
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
               </div>
             </div>
           </div>
-          <!-- Brandmark -->
-          <div class="tree-branch">
-            <div class="folder" data-folder="brandmark" onclick="toggleFolder('brandmark')">
-              <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-              <div class="folder-label">Brandmark</div>
+
+          <!-- 4. BRANDMARK -->
+          <div class="tree">
+            <div class="folder-node" onclick="toggle(this)">
+              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+              <span class="fname">Brandmark</span>
+              <span class="arrow"></span>
             </div>
-            <div class="children-wrap" id="brandmark">
-              <div class="file-row tight">
-                <div class="file"><div class="file-shape"></div><div class="file-label">.ai .eps .svg</div></div>
-                <div class="file"><div class="file-shape"></div><div class="file-label">.pdf .png .jpg</div></div>
+            <div class="tree-children">
+              <div class="tree-level">
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
               </div>
             </div>
           </div>
-          <!-- Submark -->
-          <div class="tree-branch">
-            <div class="folder" data-folder="submark" onclick="toggleFolder('submark')">
-              <div class="folder-shape"><div class="folder-tab"></div><div class="folder-body"></div></div>
-              <div class="folder-label">Submark</div>
+
+          <!-- 5. SUBMARK -->
+          <div class="tree">
+            <div class="folder-node" onclick="toggle(this)">
+              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
+              <span class="fname">Submark</span>
+              <span class="arrow"></span>
             </div>
-            <div class="children-wrap" id="submark">
-              <div class="file-row tight">
-                <div class="file"><div class="file-shape"></div><div class="file-label">.ai .eps .svg</div></div>
-                <div class="file"><div class="file-shape"></div><div class="file-label">.pdf .png .jpg</div></div>
+            <div class="tree-children">
+              <div class="tree-level">
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
+                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
-
     </div>
+
   </div>
 
   <div class="info-section">
@@ -427,12 +378,11 @@
 </div>
 
 <script>
-  function toggleFolder(id) {
-    const el = document.getElementById(id);
-    const folder = document.querySelector(`[data-folder="${id}"]`);
-    if (el && folder) {
-      el.classList.toggle('open');
-      folder.classList.toggle('open');
+  function toggle(el) {
+    el.classList.toggle('open');
+    const children = el.nextElementSibling;
+    if (children && children.classList.contains('tree-children')) {
+      children.classList.toggle('open');
     }
   }
 </script>
