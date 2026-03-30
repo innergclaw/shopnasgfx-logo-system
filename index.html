@@ -5,390 +5,612 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Logo File System — ShopNasGfx</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #F5F3EE;
-      --white: #fff;
-      --text: #1a1a1a;
-      --muted: #888;
-      --line: #C8C8C8;
-      --folder: #D4A843;
-      --folder-open: #C49A35;
-      --file: #A8A89C;
-      --accent: #6C63FF;
-    }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-    .page { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
 
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
-    .brand { font-size: 14px; font-weight: 800; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
-    .brand span { color: var(--accent); }
-
-    .hero { text-align: center; margin-bottom: 48px; }
-    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 5vw, 42px); margin-bottom: 10px; line-height: 1.2; }
-    .hero p { color: var(--muted); font-size: 16px; max-width: 520px; margin: 0 auto; }
-
-    /* DIAGRAM */
-    .diagram-box {
-      background: var(--white);
-      border: 1px solid #E0DDD6;
-      border-radius: 16px;
-      padding: 48px 32px;
-      margin-bottom: 48px;
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #050505;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* FOLDER NODE */
-    .folder-node {
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 60px;
+      opacity: 0;
+      animation: fadeDown 0.8s ease 0.2s forwards;
+    }
+    .brand {
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .brand span { color: #6C63FF; }
+    .tag {
+      background: rgba(108,99,255,0.1);
+      border: 1px solid rgba(108,99,255,0.3);
+      color: #8B83FF;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      margin-bottom: 64px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 6vw, 48px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+    .hero h1 .glow {
+      background: linear-gradient(135deg, #6C63FF, #00D4FF, #6C63FF);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease infinite;
+    }
+    .hero p {
+      color: #666;
+      font-size: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* TREE VISUALIZATION */
+    .tree-vis {
+      opacity: 0;
+      animation: fadeUp 1s ease 0.6s forwards;
+    }
+
+    /* NODE */
+    .node {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      padding: 10px 16px;
+      border-radius: 12px;
       cursor: pointer;
-      padding: 6px 0;
-      user-select: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      opacity: 0;
+      transform: translateX(-20px);
     }
-    .folder-node:hover .fbody { filter: brightness(1.08); }
-    .folder-node.open .fbody { background: var(--folder-open); }
+    .node.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .node:hover {
+      background: rgba(108,99,255,0.06);
+    }
+    .node.active {
+      background: rgba(108,99,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(108,99,255,0.15);
+    }
 
-    .ficon { position: relative; width: 44px; height: 36px; flex-shrink: 0; }
-    .ftab { width: 18px; height: 7px; background: var(--folder); border-radius: 3px 3px 0 0; position: absolute; top: 0; left: 0; }
-    .fbody { width: 44px; height: 29px; background: var(--folder); border-radius: 0 3px 3px 3px; position: absolute; bottom: 0; box-shadow: 1px 2px 0 rgba(0,0,0,0.12); }
-    .folder-node.open .ftab { background: var(--folder-open); }
-
-    .fname { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
-
-    /* ARROW */
-    .arrow { display: inline-block; width: 16px; height: 16px; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg); margin-left: 4px; transition: transform 0.3s; flex-shrink: 0; }
-    .folder-node.open .arrow { transform: rotate(-135deg); }
-
-    /* FILE NODE */
-    .file-node {
+    /* ROOT NODE */
+    .root-node {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 3px 0;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(108,99,255,0.08), rgba(0,212,255,0.04));
+      border: 1px solid rgba(108,99,255,0.15);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      opacity: 0;
+      transform: translateY(-10px);
     }
-    .ficon-file { width: 32px; height: 38px; background: var(--file); border-radius: 0 2px 2px 2px; position: relative; flex-shrink: 0; box-shadow: 1px 2px 0 rgba(0,0,0,0.08); }
-    .ficon-file::before { content: ''; position: absolute; top: 0; right: 0; width: 11px; height: 11px; background: linear-gradient(135deg, var(--white) 50%, var(--file) 50%); }
-    .fext { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--muted); }
+    .root-node.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .root-node:hover {
+      border-color: rgba(108,99,255,0.3);
+      box-shadow: 0 0 30px rgba(108,99,255,0.1);
+    }
 
-    /* TREE STRUCTURE */
-    .tree { padding-left: 0; }
-    .tree-level { padding-left: 28px; border-left: 2px solid var(--line); margin-left: 21px; }
-    .tree-children {
+    /* ICONS */
+    .icon-folder {
+      width: 40px;
+      height: 32px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .icon-folder .tab {
+      width: 16px;
+      height: 6px;
+      background: #D4A843;
+      border-radius: 3px 3px 0 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: background 0.3s;
+    }
+    .icon-folder .body {
+      width: 40px;
+      height: 26px;
+      background: #D4A843;
+      border-radius: 0 3px 3px 3px;
+      position: absolute;
+      bottom: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    .node.active .icon-folder .body,
+    .node.active .icon-folder .tab { background: #E8BE5A; }
+
+    .icon-file {
+      width: 30px;
+      height: 36px;
+      background: #2a2a2a;
+      border: 1px solid #333;
+      border-radius: 0 2px 2px 2px;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .icon-file::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(135deg, #050505 50%, #2a2a2a 50%);
+      border-top: 1px solid #333;
+      border-right: 1px solid #333;
+    }
+    .node:hover .icon-file {
+      border-color: #6C63FF;
+      background: #1a1a2e;
+    }
+
+    .node-label {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .node-label.file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .node-arrow {
+      margin-left: auto;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid #444;
+      border-bottom: 2px solid #444;
+      transform: rotate(-45deg);
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+    .node.active .node-arrow {
+      transform: rotate(45deg);
+      border-color: #6C63FF;
+    }
+
+    /* CHILDREN CONTAINER */
+    .children {
       overflow: hidden;
       max-height: 0;
       opacity: 0;
-      transition: max-height 0.5s ease, opacity 0.4s ease;
+      transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+      padding-left: 20px;
+      border-left: 1px solid #1a1a1a;
+      margin-left: 20px;
     }
-    .tree-children.open {
+    .children.open {
       max-height: 2000px;
       opacity: 1;
     }
+    .children.root-children {
+      padding-left: 0;
+      border-left: none;
+      margin-left: 0;
+    }
 
-    /* TOP ROW: 5 folders side by side */
-    .top-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    /* PARTICLE BG */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(108,99,255,0.3);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* GLOW LINE */
+    .glow-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(108,99,255,0.3), transparent);
+      margin: 40px 0;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+
+    /* INFO CARDS */
+    .info-section {
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.9s forwards;
+    }
+    .info-section h2 {
+      font-size: 22px;
+      font-weight: 700;
       margin-bottom: 8px;
     }
-    .top-row .children-grid {
+    .info-section p { color: #666; font-size: 14px; margin-bottom: 16px; }
+
+    .cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px 16px;
-      padding-top: 16px;
-      border-top: 2px solid var(--line);
-      margin-top: 8px;
-      width: 100%;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .card:hover {
+      border-color: rgba(108,99,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(108,99,255,0.08);
+    }
+    .card .emoji { font-size: 24px; margin-bottom: 6px; }
+    .card h4 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .card p { font-size: 11px; color: #555; }
+
+    .formats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 48px;
+    }
+    .fmt {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .fmt:hover { border-color: rgba(108,99,255,0.3); }
+    .fmt .ext {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      color: #6C63FF;
+    }
+    .fmt .desc { font-size: 10px; color: #555; }
+
+    /* CTA */
+    .cta {
+      background: linear-gradient(135deg, rgba(108,99,255,0.08), rgba(0,212,255,0.03));
+      border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 20px;
+      padding: 48px 32px;
+      text-align: center;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 1s forwards;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(108,99,255,0.05) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+    .cta h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; position: relative; }
+    .cta p { color: #666; font-size: 14px; margin-bottom: 20px; position: relative; }
+    .cta .price {
+      font-size: 52px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6C63FF, #00D4FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+      position: relative;
+    }
+    .cta .price-note { color: #555; font-size: 12px; margin-bottom: 28px; position: relative; }
+    .cta-btn {
+      display: inline-block;
+      padding: 14px 40px;
+      background: linear-gradient(135deg, #6C63FF, #5a52e0);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+      position: relative;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(108,99,255,0.4);
     }
 
-    /* MASTER EXPANDS LEFT-ALIGNED */
-    .master-tree {
-      padding-left: 28px;
-      border-left: 2px solid var(--line);
-      margin-left: 21px;
+    .footer {
+      text-align: center;
+      color: #333;
+      font-size: 12px;
+      padding-top: 24px;
+      border-top: 1px solid #111;
+    }
+    .footer a { color: #6C63FF; text-decoration: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* SECTIONS */
-    .info-section { margin-bottom: 40px; }
-    .info-section h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
-    .info-section p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
-
-    .variations { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 40px; }
-    .var-card { background: var(--white); border: 1px solid #E0DDD6; border-radius: 12px; padding: 16px; text-align: center; }
-    .var-card .emoji { font-size: 28px; margin-bottom: 8px; }
-    .var-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-    .var-card p { font-size: 11px; color: var(--muted); }
-
-    .formats-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
-    .fmt-tag { background: var(--white); border: 1px solid #E0DDD6; border-radius: 8px; padding: 10px 18px; text-align: center; }
-    .fmt-tag .ext { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent); }
-    .fmt-tag .desc { font-size: 11px; color: var(--muted); }
-
-    .cta { background: var(--white); border: 1px solid #E0DDD6; border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 40px; }
-    .cta h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 8px; }
-    .cta p { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
-    .cta .price { font-size: 48px; font-weight: 900; color: var(--accent); margin-bottom: 4px; }
-    .cta .price-note { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-    .cta-btn { display: inline-block; padding: 16px 48px; background: var(--accent); color: white; text-decoration: none; border-radius: 10px; font-weight: 800; font-size: 16px; transition: transform 0.3s; }
-    .cta-btn:hover { transform: translateY(-2px); }
-
-    .footer { text-align: center; color: var(--muted); font-size: 12px; border-top: 1px solid #E0DDD6; padding-top: 24px; }
-    .footer a { color: var(--accent); text-decoration: none; }
+    /* Stagger children */
+    .node:nth-child(1) { transition-delay: 0.05s; }
+    .node:nth-child(2) { transition-delay: 0.1s; }
+    .node:nth-child(3) { transition-delay: 0.15s; }
+    .node:nth-child(4) { transition-delay: 0.2s; }
+    .node:nth-child(5) { transition-delay: 0.25s; }
+    .node:nth-child(6) { transition-delay: 0.3s; }
 
     @media (max-width: 600px) {
-      .top-row .children-grid { grid-template-columns: 1fr; }
-      .diagram-box { padding: 24px 16px; }
-      .tree-level { padding-left: 20px; margin-left: 16px; }
-      .variations { grid-template-columns: repeat(2, 1fr); }
-      .formats-row { gap: 6px; }
-      .fmt-tag { padding: 8px 12px; flex: 1; min-width: calc(33% - 8px); }
+      .page { padding: 24px 16px 60px; }
+      .children { padding-left: 14px; margin-left: 14px; }
+      .node { padding: 8px 12px; gap: 10px; }
+      .node-label { font-size: 14px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .formats { gap: 6px; }
+      .fmt { padding: 8px 10px; flex: 1; min-width: calc(33% - 6px); }
     }
   </style>
 </head>
 <body>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
 <div class="page">
 
   <div class="top-bar">
     <div class="brand">Shop<span>Nas</span>Gfx</div>
+    <div class="tag">ADD-ON</div>
   </div>
 
   <div class="hero">
-    <h1>Your Logo. Every File. Every Format.</h1>
-    <p>A complete, organized logo file system delivered with every logo package. Click any folder to explore.</p>
+    <h1>Your Logo. <span class="glow">Every File.</span><br>Every Format.</h1>
+    <p>A complete, organized logo file system. Click any folder to explore.</p>
   </div>
 
-  <div class="diagram-box">
-
+  <div class="tree-vis">
     <!-- ROOT -->
-    <div class="top-row">
-      <div class="folder-node open" onclick="toggle(this)">
-        <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-        <span class="fname">Logo System</span>
-        <span class="arrow"></span>
-      </div>
-
-      <div class="tree-children open">
-        <div class="children-grid">
-
-          <!-- 1. MASTER LOGO -->
-          <div class="tree">
-            <div class="folder-node" onclick="toggle(this)">
-              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-              <span class="fname">Master Logo</span>
-              <span class="arrow"></span>
-            </div>
-            <div class="tree-children">
-              <div class="tree-level">
-                <!-- Digital -->
-                <div class="tree">
-                  <div class="folder-node" onclick="toggle(this)">
-                    <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-                    <span class="fname">Digital</span>
-                    <span class="arrow"></span>
-                  </div>
-                  <div class="tree-children">
-                    <div class="tree-level">
-                      <!-- Full Color -->
-                      <div class="tree">
-                        <div class="folder-node" onclick="toggle(this)">
-                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-                          <span class="fname">Full Color</span>
-                          <span class="arrow"></span>
-                        </div>
-                        <div class="tree-children">
-                          <div class="tree-level">
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Black -->
-                      <div class="tree">
-                        <div class="folder-node" onclick="toggle(this)">
-                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-                          <span class="fname">Black</span>
-                          <span class="arrow"></span>
-                        </div>
-                        <div class="tree-children">
-                          <div class="tree-level">
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- White -->
-                      <div class="tree">
-                        <div class="folder-node" onclick="toggle(this)">
-                          <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-                          <span class="fname">White</span>
-                          <span class="arrow"></span>
-                        </div>
-                        <div class="tree-children">
-                          <div class="tree-level">
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                            <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Print -->
-                <div class="tree">
-                  <div class="folder-node" onclick="toggle(this)">
-                    <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-                    <span class="fname">Print</span>
-                    <span class="arrow"></span>
-                  </div>
-                  <div class="tree-children">
-                    <div class="tree-level">
-                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                      <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. SECONDARY LOGO -->
-          <div class="tree">
-            <div class="folder-node" onclick="toggle(this)">
-              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-              <span class="fname">Secondary Logo</span>
-              <span class="arrow"></span>
-            </div>
-            <div class="tree-children">
-              <div class="tree-level">
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. WORDMARK -->
-          <div class="tree">
-            <div class="folder-node" onclick="toggle(this)">
-              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-              <span class="fname">Wordmark</span>
-              <span class="arrow"></span>
-            </div>
-            <div class="tree-children">
-              <div class="tree-level">
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 4. BRANDMARK -->
-          <div class="tree">
-            <div class="folder-node" onclick="toggle(this)">
-              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-              <span class="fname">Brandmark</span>
-              <span class="arrow"></span>
-            </div>
-            <div class="tree-children">
-              <div class="tree-level">
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. SUBMARK -->
-          <div class="tree">
-            <div class="folder-node" onclick="toggle(this)">
-              <div class="ficon"><div class="ftab"></div><div class="fbody"></div></div>
-              <span class="fname">Submark</span>
-              <span class="arrow"></span>
-            </div>
-            <div class="tree-children">
-              <div class="tree-level">
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.ai</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.eps</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.svg</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.pdf</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.png</span></div>
-                <div class="file-node"><div class="ficon-file"></div><span class="fext">.jpg</span></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+    <div class="root-node" onclick="toggle(this)" id="root">
+      <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+      <span class="node-label">Logo System</span>
+      <div class="node-arrow"></div>
     </div>
 
+    <div class="children root-children open" id="root-children">
+      <!-- 1. MASTER LOGO -->
+      <div class="node visible" onclick="toggle(this)">
+        <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+        <span class="node-label">Master Logo</span>
+        <div class="node-arrow"></div>
+      </div>
+      <div class="children">
+        <!-- Digital -->
+        <div class="node" onclick="toggle(this)">
+          <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+          <span class="node-label">Digital</span>
+          <div class="node-arrow"></div>
+        </div>
+        <div class="children">
+          <!-- Full Color -->
+          <div class="node" onclick="toggle(this)">
+            <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+            <span class="node-label">Full Color</span>
+            <div class="node-arrow"></div>
+          </div>
+          <div class="children">
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.ai</span></div>
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.eps</span></div>
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.svg</span></div>
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.pdf</span></div>
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.png</span></div>
+            <div class="node"><div class="icon-file"></div><span class="node-label file-name">.jpg</span></div>
+          </div>
+          <!-- Black -->
+          <div class="node"><div class="icon-folder"><div class="tab"></div><div class="body"></div></div><span class="node-label">Black</span><div class="node-arrow"></div></div>
+          <!-- White -->
+          <div class="node"><div class="icon-folder"><div class="tab"></div><div class="body"></div></div><span class="node-label">White</span><div class="node-arrow"></div></div>
+        </div>
+        <!-- Print -->
+        <div class="node"><div class="icon-folder"><div class="tab"></div><div class="body"></div></div><span class="node-label">Print</span><div class="node-arrow"></div></div>
+      </div>
+
+      <!-- 2. SECONDARY LOGO -->
+      <div class="node visible" onclick="toggle(this)">
+        <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+        <span class="node-label">Secondary Logo</span>
+        <div class="node-arrow"></div>
+      </div>
+      <div class="children"></div>
+
+      <!-- 3. WORDMARK -->
+      <div class="node visible" onclick="toggle(this)">
+        <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+        <span class="node-label">Wordmark</span>
+        <div class="node-arrow"></div>
+      </div>
+      <div class="children"></div>
+
+      <!-- 4. BRANDMARK -->
+      <div class="node visible" onclick="toggle(this)">
+        <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+        <span class="node-label">Brandmark</span>
+        <div class="node-arrow"></div>
+      </div>
+      <div class="children"></div>
+
+      <!-- 5. SUBMARK -->
+      <div class="node visible" onclick="toggle(this)">
+        <div class="icon-folder"><div class="tab"></div><div class="body"></div></div>
+        <span class="node-label">Submark</span>
+        <div class="node-arrow"></div>
+      </div>
+      <div class="children"></div>
+    </div>
   </div>
+
+  <div class="glow-line"></div>
 
   <div class="info-section">
     <h2>5 Logo Variations</h2>
     <p>Every version of your logo, organized and ready to use.</p>
   </div>
-  <div class="variations">
-    <div class="var-card"><div class="emoji">🏆</div><h4>Master Logo</h4><p>Primary — full color</p></div>
-    <div class="var-card"><div class="emoji">🔄</div><h4>Secondary</h4><p>Alternate layout</p></div>
-    <div class="var-card"><div class="emoji">🔤</div><h4>Wordmark</h4><p>Text only</p></div>
-    <div class="var-card"><div class="emoji">💎</div><h4>Brandmark</h4><p>Icon only</p></div>
-    <div class="var-card"><div class="emoji">✨</div><h4>Submark</h4><p>Simplified mark</p></div>
+  <div class="cards">
+    <div class="card"><div class="emoji">🏆</div><h4>Master Logo</h4><p>Primary — full color</p></div>
+    <div class="card"><div class="emoji">🔄</div><h4>Secondary</h4><p>Alternate layout</p></div>
+    <div class="card"><div class="emoji">🔤</div><h4>Wordmark</h4><p>Text only</p></div>
+    <div class="card"><div class="emoji">💎</div><h4>Brandmark</h4><p>Icon only</p></div>
+    <div class="card"><div class="emoji">✨</div><h4>Submark</h4><p>Simplified mark</p></div>
   </div>
 
   <div class="info-section">
     <h2>File Formats</h2>
-    <p>Digital-ready and print-ready files for any use case.</p>
+    <p>Digital-ready and print-ready.</p>
   </div>
-  <div class="formats-row">
-    <div class="fmt-tag"><div class="ext">.AI</div><div class="desc">Source file</div></div>
-    <div class="fmt-tag"><div class="ext">.EPS</div><div class="desc">Print vector</div></div>
-    <div class="fmt-tag"><div class="ext">.SVG</div><div class="desc">Web scalable</div></div>
-    <div class="fmt-tag"><div class="ext">.PDF</div><div class="desc">Universal</div></div>
-    <div class="fmt-tag"><div class="ext">.PNG</div><div class="desc">Transparent BG</div></div>
-    <div class="fmt-tag"><div class="ext">.JPG</div><div class="desc">Preview</div></div>
+  <div class="formats">
+    <div class="fmt"><div class="ext">.AI</div><div class="desc">Source</div></div>
+    <div class="fmt"><div class="ext">.EPS</div><div class="desc">Print</div></div>
+    <div class="fmt"><div class="ext">.SVG</div><div class="desc">Web</div></div>
+    <div class="fmt"><div class="ext">.PDF</div><div class="desc">Universal</div></div>
+    <div class="fmt"><div class="ext">.PNG</div><div class="desc">Transparent</div></div>
+    <div class="fmt"><div class="ext">.JPG</div><div class="desc">Preview</div></div>
   </div>
 
   <div class="cta">
     <h2>Add the Logo File System</h2>
-    <p>Complete, organized, ready to use. One-time add-on to any logo package.</p>
+    <p>Complete, organized, ready to use.</p>
     <div class="price">$50</div>
     <div class="price-note">One-time add-on · Delivered with your logo</div>
     <a href="#" class="cta-btn">Get Started →</a>
   </div>
 
   <div class="footer">
-    <p>© 2026 <a href="https://innergclaw.github.io/shopnasgfx/">ShopNasGfx</a> — Professional design services by Nasir.</p>
+    <p>© 2026 <a href="https://innergclaw.github.io/shopnasgfx/">ShopNasGfx</a></p>
   </div>
 
 </div>
 
 <script>
   function toggle(el) {
-    el.classList.toggle('open');
-    const children = el.nextElementSibling;
-    if (children && children.classList.contains('tree-children')) {
-      children.classList.toggle('open');
+    const wasActive = el.classList.contains('active');
+
+    if (wasActive) {
+      el.classList.remove('active');
+      const children = el.nextElementSibling;
+      if (children && children.classList.contains('children')) {
+        children.classList.remove('open');
+        // Hide child nodes
+        children.querySelectorAll('.node').forEach(n => n.classList.remove('visible'));
+      }
+    } else {
+      el.classList.add('active');
+      const children = el.nextElementSibling;
+      if (children && children.classList.contains('children')) {
+        children.classList.add('open');
+        // Animate child nodes in
+        const nodes = children.querySelectorAll(':scope > .node');
+        nodes.forEach((n, i) => {
+          setTimeout(() => n.classList.add('visible'), i * 60);
+        });
+      }
     }
+  }
+
+  // Init root
+  setTimeout(() => {
+    document.getElementById('root').classList.add('active');
+    const rootChildren = document.querySelectorAll('.root-children > .node');
+    rootChildren.forEach((n, i) => {
+      setTimeout(() => n.classList.add('visible'), i * 80);
+    });
+  }, 800);
+
+  // Particles
+  const particlesEl = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+    particlesEl.appendChild(p);
   }
 </script>
 </body>
